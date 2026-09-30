@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>URBANOS — Select Location</title>
+<link rel="stylesheet" href="css/tokens.css" />
+<link rel="stylesheet" href="css/components.css" />
+<link rel="stylesheet" href="css/location.css" />
+</head>
+<body>
+
+<div class="loc-shell">
+  <div class="loc-card">
+
+    <div class="loc-head">
+      <div class="brand-row">
+        <div class="brand-mark-sm">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 2C12 2 5 10.5 5 15.2C5 19 8.13 22 12 22C15.87 22 19 19 19 15.2C19 10.5 12 2 12 2Z" fill="white"/></svg>
+        </div>
+        <strong>URBANOS</strong>
+      </div>
+      <button class="btn btn-outline btn-sm" id="loc-logout-btn">Log Out</button>
+    </div>
+
+    <!-- Step indicator -->
+    <div class="loc-steps">
+      <div class="loc-step active" id="step-ind-state"><span>1</span>State</div>
+      <div class="loc-step-line"></div>
+      <div class="loc-step" id="step-ind-city"><span>2</span>City</div>
+      <div class="loc-step-line"></div>
+      <div class="loc-step" id="step-ind-zone"><span>3</span>Micro-zone</div>
+    </div>
+
+    <!-- Step 1: State -->
+    <section class="loc-step-panel" id="panel-state">
+      <h2 class="loc-title">Select your State / UT</h2>
+      <p class="text-sm text-muted">URBANOS now covers cities across India. Pick a state to continue.</p>
+      <input class="input" id="state-search" placeholder="Search state…" style="margin:14px 0;" />
+      <div class="loc-grid" id="state-grid"></div>
+    </section>
+
+    <!-- Step 2: City -->
+    <section class="loc-step-panel hidden" id="panel-city">
+      <button class="link-btn" id="back-to-state">← Change State</button>
+      <h2 class="loc-title" id="city-title">Select your City</h2>
+      <p class="text-sm text-muted">Pick the city or district you want to monitor.</p>
+      <div class="loc-grid" id="city-grid" style="margin-top:14px;"></div>
+    </section>
+
+    <!-- Step 3: Micro-zone (citizen only; authority can skip to whole city) -->
+    <section class="loc-step-panel hidden" id="panel-zone">
+      <button class="link-btn" id="back-to-city">← Change City</button>
+      <h2 class="loc-title" id="zone-title">Select your Micro-zone</h2>
+      <p class="text-sm text-muted" id="zone-sub">This becomes your home zone for personalized alerts. You can change it anytime from your profile.</p>
+      <div class="loc-grid loc-grid-zone" id="zone-grid" style="margin-top:14px;"></div>
+      <button class="btn btn-primary btn-block" id="zone-continue-btn" style="margin-top:18px;">Continue to Dashboard →</button>
+    </section>
+
+  </div>
+</div>
+
+<div id="toast-root"></div>
+
+<script src="js/api.js"></script>
+<script src="js/data.js"></script>
+<script src="js/locations.js"></script>
+<script src="js/ui-common.js"></script>
+<script src="js/location.js"></script>
+</body>
+</html>

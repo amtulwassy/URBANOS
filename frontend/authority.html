@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>URBANOS — Authority Console</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<link rel="stylesheet" href="css/tokens.css" />
+<link rel="stylesheet" href="css/components.css" />
+<link rel="stylesheet" href="css/authority.css" />
+
+</head>
+<body>
+
+<div class="dash-shell">
+
+  <!-- ============ SIDEBAR ============ -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M12 2C12 2 5 10.5 5 15.2C5 19 8.13 22 12 22C15.87 22 19 19 19 15.2C19 10.5 12 2 12 2Z" fill="#3ea6ff"/></svg>
+      <div>
+        <strong>URBANOS</strong>
+        <div class="sidebar-sub">Urban Flood Early Warning &amp; Response System</div>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <button class="side-link active" data-view="dashboard"><span>📊</span>Dashboard</button>
+      <button class="side-link" data-view="livemap"><span>🗺️</span>Live Map</button>
+      <button class="side-link" data-view="analysis"><span>📈</span>Analysis</button>
+      <button class="side-link" data-view="precaution"><span>⚠️</span>Precaution Signals <span class="side-count" id="side-precaution-count">0</span></button>
+      <button class="side-link" data-view="alerts"><span>🔔</span>Alerts <span class="side-count" id="side-alert-count">3</span></button>
+      <button class="side-link" data-view="reports"><span>📥</span>Complaint Tracker</button>
+      <button class="side-link" data-view="infra"><span>🏗️</span>Infrastructure</button>
+      <button class="side-link" data-view="response"><span>🚨</span>Response</button>
+      <button class="side-link" data-view="forecast"><span>☁️</span>Forecast</button>
+    </nav>
+
+    <div class="sidebar-status">
+      <div class="status-title">System Status</div>
+      <div class="status-row"><span class="dot dot-live"></span> Sensors Online <strong id="stat-sensors">32/32</strong></div>
+      <div class="status-row"><span class="dot dot-live"></span> Data Streams <strong>Active</strong></div>
+      <div class="status-row"><span class="dot dot-live"></span> AI Model <strong>Operational</strong></div>
+      <div class="status-row text-muted">Last Update: <span id="last-update-time">—</span></div>
+    </div>
+
+    <button class="side-link" id="side-change-city-btn" style="margin-top:auto;"><span>🌍</span>Change City</button>
+    <button class="side-link" id="side-profile-btn"><span>👤</span>Profile &amp; Settings</button>
+    <button class="side-link" id="side-logout-btn"><span>🚪</span>Log Out</button>
+  </aside>
+
+  <!-- ============ MAIN ============ -->
+  <div class="dash-main">
+
+    <!-- Top bar -->
+    <header class="topbar">
+      <div>
+        <h1 id="topbar-title">Dashboard</h1>
+        <p class="text-muted text-sm" id="topbar-sub">Bhubaneswar flood risk overview</p>
+      </div>
+      <div class="topbar-right">
+        <span class="tb-chip"><span class="dot dot-live"></span> Live Data</span>
+        <span class="tb-chip">⛅ <span id="tb-temp">24°C</span> Light Rain</span>
+        <button class="tb-icon-btn" id="tb-alert-btn">🔔<span class="tb-badge" id="tb-alert-badge">3</span></button>
+        <button class="tb-profile-btn" id="tb-profile-btn">
+          <span class="tb-avatar" id="tb-avatar">A</span>
+          <span>
+            <strong id="tb-name">Admin</strong>
+            <div class="text-sm text-muted">Authority</div>
+          </span>
+          <span>▾</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- ============ DASHBOARD VIEW ============ -->
+    <section class="dash-view" id="view-dashboard">
+      <div class="stat-grid">
+        <div class="card card-pad stat-card">
+          <div class="stat-icon" style="background:#e7f1fc;color:#1565c0;">🌧️</div>
+          <div><span class="text-sm text-muted">Total Rainfall (24h)</span><h3 id="stat-rainfall">—</h3><span class="stat-delta up" id="stat-rainfall-delta"></span></div>
+        </div>
+        <div class="card card-pad stat-card">
+          <div class="stat-icon" style="background:#e6f6ff;color:#0e9aa3;">💧</div>
+          <div><span class="text-sm text-muted">Avg Water Level</span><h3 id="stat-water">—</h3><span class="stat-delta neutral">Normal</span></div>
+        </div>
+        <div class="card card-pad stat-card">
+          <div class="stat-icon" style="background:#fde8e8;color:#c62828;">🛡️</div>
+          <div><span class="text-sm text-muted">High Risk Zones</span><h3 id="stat-highrisk">—</h3><span class="stat-delta up" id="stat-highrisk-delta"></span></div>
+        </div>
+        <div class="card card-pad stat-card">
+          <div class="stat-icon" style="background:#eef1fb;color:#5865d6;">👥</div>
+          <div><span class="text-sm text-muted">Affected Population</span><h3 id="stat-affected">—</h3><span class="stat-delta up" id="stat-affected-delta"></span></div>
+        </div>
+        <div class="card card-pad stat-card">
+          <div class="stat-icon" style="background:#eef4ff;color:#0b4f8a;">🏢</div>
+          <div><span class="text-sm text-muted">Infrastructure At Risk</span><h3 id="stat-infra">24</h3><span class="stat-delta up">↑ 5</span></div>
+        </div>
+      </div>
+
+      <div class="card card-pad" id="dash-precaution-card" style="margin-bottom:16px;">
+        <div class="flex justify-between items-center">
+          <h3 class="panel-title">⚠️ Precaution Signals — Early Warning (Next 6h)</h3>
+          <button class="btn btn-ghost btn-sm" data-goto="precaution">Full View →</button>
+        </div>
+        <p class="text-sm text-muted">Micro-zones projected to escalate risk level if rain continues — act before it happens.</p>
+        <div id="dash-precaution-list" style="margin-top:10px;"></div>
+      </div>
+
+      <div class="grid-2col">
+        <div class="card card-pad">
+          <div class="flex justify-between items-center">
+            <h3 class="panel-title">Risk Map (Micro-Zones)</h3>
+            <button class="btn btn-outline btn-sm" data-goto="livemap">Expand</button>
+          </div>
+          <div id="dash-map" class="map-box-lg"></div>
+          <div class="legend-row" style="margin-top:10px;">
+            <span><span class="dot dot-low"></span> Low</span>
+            <span><span class="dot dot-medium"></span> Medium</span>
+            <span><span class="dot dot-high"></span> High</span>
+            <span><span class="dot dot-critical"></span> Critical</span>
+          </div>
+        </div>
+
+        <div class="card card-pad">
+          <h3 class="panel-title">Current Risk Summary</h3>
+          <div class="donut-wrap">
+            <canvas id="risk-donut" width="150" height="150"></canvas>
+            <div class="donut-center"><strong id="donut-total">—</strong><span>Total Zones</span></div>
+          </div>
+          <div class="donut-legend" id="donut-legend"></div>
+          <button class="btn btn-primary btn-block" id="analyze-now-btn" style="margin-top:14px;">⚡ Analyze Now<br /><span class="btn-sub">Run flood risk analysis on latest data</span></button>
+        </div>
+      </div>
+
+      <div class="grid-2col" style="margin-top:16px;">
+        <div class="card card-pad">
+          <h3 class="panel-title">Rainfall Trend (mm/hr)</h3>
+          <canvas id="rainfall-trend-chart" height="130"></canvas>
+        </div>
+        <div class="card card-pad">
+          <h3 class="panel-title">Water Level Trend (m)</h3>
+          <canvas id="water-trend-chart" height="130"></canvas>
+        </div>
+      </div>
+
+      <div class="card card-pad" style="margin-top:16px;">
+        <div class="flex justify-between items-center">
+          <h3 class="panel-title">Top At-Risk Zones</h3>
+          <button class="btn btn-ghost btn-sm" data-goto="analysis">Full Analysis →</button>
+        </div>
+        <table class="data-table" id="top-zones-table">
+          <thead><tr><th>Zone</th><th>Risk Level</th><th>Population</th><th>Score</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+
+      <div class="grid-2col" style="margin-top:16px;">
+        <div class="card card-pad">
+          <div class="flex justify-between items-center">
+            <h3 class="panel-title">Citizen Reports (Live)</h3>
+            <button class="btn btn-ghost btn-sm" data-goto="reports">View All</button>
+          </div>
+          <div id="dash-reports-list"></div>
+        </div>
+        <div class="card card-pad">
+          <div class="flex justify-between items-center">
+            <h3 class="panel-title">Active Alerts</h3>
+            <button class="btn btn-ghost btn-sm" data-goto="alerts">View All</button>
+          </div>
+          <div id="dash-alerts-list"></div>
+        </div>
+      </div>
+
+      <div class="card card-pad" style="margin-top:16px;">
+        <h3 class="panel-title">Recommended Actions</h3>
+        <div class="reco-actions" id="reco-actions"></div>
+      </div>
+    </section>
+
+    <!-- ============ LIVE MAP VIEW ============ -->
+    <section class="dash-view hidden" id="view-livemap">
+      <div class="card card-pad">
+        <h3 class="panel-title">Live Risk Map — All Zones</h3>
+        <div id="live-map" class="map-box-xl"></div>
+      </div>
+    </section>
+
+    <!-- ============ ANALYSIS VIEW ============ -->
+    <section class="dash-view hidden" id="view-analysis">
+      <div class="card card-pad">
+        <h3 class="panel-title">Zone-by-Zone AI Risk Analysis</h3>
+        <p class="text-sm text-muted">Weighted model: rainfall intensity, water level, elevation, drainage capacity, and historical flood-proneness. Click a zone for a full breakdown and recommended response.</p>
+        <div id="analysis-zone-grid" class="zone-grid"></div>
+      </div>
+
+      <div class="card card-pad" style="margin-top:16px;">
+        <h3 class="panel-title">Scenario Simulator — "What If"</h3>
+        <p class="text-sm text-muted">Model an additional burst of rainfall over the next few hours and see which zones escalate, before it happens.</p>
+        <div class="scenario-controls">
+          <div class="field" style="margin-bottom:0;">
+            <label>Extra rainfall (mm)</label>
+            <input type="range" id="scenario-rain" min="0" max="150" value="40" />
+            <span id="scenario-rain-val" class="text-sm mono">40 mm</span>
+          </div>
+          <div class="field" style="margin-bottom:0;">
+            <label>Time window</label>
+            <select class="input" id="scenario-hours">
+              <option value="2">Next 2 hours</option>
+              <option value="6" selected>Next 6 hours</option>
+              <option value="12">Next 12 hours</option>
+            </select>
+          </div>
+          <button class="btn btn-primary" id="scenario-run-btn">Run Simulation</button>
+        </div>
+        <div id="scenario-result"></div>
+      </div>
+    </section>
+
+    <!-- ============ PRECAUTION SIGNALS VIEW ============ -->
+    <section class="dash-view hidden" id="view-precaution">
+      <div class="card card-pad">
+        <h3 class="panel-title">⚠️ Precaution Signals — Micro-zone Early Warning</h3>
+        <p class="text-sm text-muted">URBANOS automatically models a moderate additional rainfall burst on top of current conditions. Any micro-zone whose risk level would escalate is signaled here, before the risk actually arrives, so pumps/crews can be pre-positioned.</p>
+        <div id="precaution-full-list" style="margin-top:14px;"></div>
+      </div>
+    </section>
+
+    <!-- ============ ALERTS VIEW ============ -->
+    <section class="dash-view hidden" id="view-alerts-full">
+      <div class="card card-pad">
+        <div class="flex justify-between items-center">
+          <h3 class="panel-title">All Alerts</h3>
+          <button class="btn btn-primary btn-sm" id="new-alert-btn">+ Issue New Alert</button>
+        </div>
+        <div id="full-alerts-list"></div>
+      </div>
+    </section>
+
+    <!-- ============ REPORTS / COMPLAINT TRACKER VIEW ============ -->
+    <section class="dash-view hidden" id="view-reports-full">
+      <div class="card card-pad">
+        <h3 class="panel-title">Complaint Tracker</h3>
+        <p class="text-sm text-muted">Every citizen report flows: Submitted → Municipal Review → Contractor Assigned → Worker Assigned → Drainage Cleaning → Resolved. Click a complaint to advance its stage or assign a contractor/worker.</p>
+        <table class="data-table" id="complaint-table">
+          <thead><tr><th>Photo</th><th>Complaint</th><th>Zone</th><th>Severity</th><th>Stage</th><th>Contractor / Worker</th></tr></thead>
+          <tbody id="complaint-table-body"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ============ INFRASTRUCTURE VIEW ============ -->
+    <!-- ============ INFRASTRUCTURE VIEW ============ -->
+<section class="dash-view hidden" id="view-infra">
+
+  <div class="card card-pad">
+    <h3 class="panel-title">Drainage Infrastructure</h3>
+    <p class="muted">
+      Government GIS drainage pipelines and their current operational status.
+    </p>
+
+    <div id="infra-map" class="map-box-xl"></div>
+  </div>
+
+  <div class="card card-pad">
+    <h3 class="panel-title">Infrastructure At Risk</h3>
+
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Pipeline</th>
+          <th>Zone</th>
+          <th>Material</th>
+          <th>Blockage</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+
+      <tbody id="infra-table-body"></tbody>
+    </table>
+  </div>
+
+</section>
+
+    <!-- ============ RESPONSE / EMERGENCY DISPATCH VIEW ============ -->
+    <section class="dash-view hidden" id="view-response">
+      <div class="card card-pad">
+        <h3 class="panel-title">🚨 Emergency Dispatch &amp; Best Route</h3>
+        <p class="text-sm text-muted">Dispatch the nearest ambulance, fire unit, or rescue boat to any zone. Route is calculated on real roads and flagged if it passes through high-risk flooding.</p>
+        <div class="scenario-controls">
+          <div class="field" style="margin-bottom:0;">
+            <label>Service</label>
+            <select class="input" id="auth-em-type">
+              <option value="ambulance">🚑 Ambulance</option>
+              <option value="fire">🚒 Fire</option>
+              <option value="rescue">🚤 Rescue Boat</option>
+            </select>
+          </div>
+          <div class="field" style="margin-bottom:0;">
+            <label>Target zone</label>
+            <select class="input" id="auth-em-zone"></select>
+          </div>
+          <button class="btn btn-danger" id="auth-em-dispatch">Dispatch Now</button>
+        </div>
+        <div id="auth-em-result" class="hidden">
+          <div id="auth-em-map" class="map-box-lg" style="margin-top:14px;"></div>
+          <div class="route-stats" id="auth-route-stats"></div>
+          <div id="auth-route-warning" class="hidden"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ FORECAST VIEW ============ -->
+    <section class="dash-view hidden" id="view-forecast">
+      <div class="card card-pad">
+        <h3 class="panel-title">72-Hour Forecast Outlook</h3>
+        <p class="text-sm text-muted">Illustrative extended outlook derived from the current rainfall trend, for planning purposes.</p>
+        <canvas id="forecast-chart" height="110"></canvas>
+      </div>
+    </section>
+
+  </div>
+</div>
+
+<!-- Profile drawer -->
+<div class="modal-overlay" id="profile-modal">
+  <div class="modal">
+    <div class="modal-head">
+      <h3>Profile &amp; Settings</h3>
+      <button class="modal-close" data-close="profile-modal">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="profile-card">
+        <div class="profile-avatar" id="modal-avatar">A</div>
+        <div>
+          <div style="font-weight:800; font-size:16px;" id="modal-profile-name">—</div>
+          <div class="text-sm text-muted" id="modal-profile-email">—</div>
+          <span class="badge badge-neutral" style="margin-top:6px;">Authority</span>
+        </div>
+      </div>
+      <div class="field" style="margin-top:16px;">
+        <label>Department</label>
+        <input class="input" id="profile-dept" value="Bhubaneswar Municipal Corporation — Disaster Management" />
+      </div>
+      <div class="field">
+        <label>Alert threshold to notify me</label>
+        <select class="input" id="profile-threshold">
+          <option>Medium and above</option>
+          <option selected>High and above</option>
+          <option>Critical only</option>
+        </select>
+      </div>
+      <button class="btn btn-primary btn-block" id="profile-save-btn">Save Settings</button>
+    </div>
+  </div>
+</div>
+
+<!-- New alert modal -->
+<div class="modal-overlay" id="new-alert-modal">
+  <div class="modal">
+    <div class="modal-head">
+      <h3>Issue New Alert</h3>
+      <button class="modal-close" data-close="new-alert-modal">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="field">
+        <label>Zone</label>
+        <select class="input" id="new-alert-zone"></select>
+      </div>
+      <div class="field">
+        <label>Severity</label>
+        <select class="input" id="new-alert-severity">
+          <option value="low">Low</option>
+          <option value="medium" selected>Medium</option>
+          <option value="high">High</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Message</label>
+        <input class="input" id="new-alert-message" placeholder="e.g. Evacuate low-lying blocks immediately" />
+      </div>
+      <button class="btn btn-primary btn-block" id="new-alert-submit">Broadcast Alert</button>
+    </div>
+  </div>
+</div>
+
+<!-- Zone detail modal -->
+<div class="modal-overlay" id="zone-detail-modal">
+  <div class="modal modal-wide">
+    <div class="modal-head">
+      <h3 id="zd-title">Zone</h3>
+      <button class="modal-close" data-close="zone-detail-modal">✕</button>
+    </div>
+    <div class="modal-body" id="zd-body"></div>
+  </div>
+</div>
+
+<!-- Report detail / complaint tracker modal -->
+<div class="modal-overlay" id="report-detail-modal">
+  <div class="modal modal-wide">
+    <div class="modal-head">
+      <h3>Complaint — BMC → Contractor → Worker → Cleaning</h3>
+      <button class="modal-close" data-close="report-detail-modal">✕</button>
+    </div>
+    <div class="modal-body" id="rd-body"></div>
+  </div>
+</div>
+
+<div id="toast-root"></div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script src="js/api.js"></script>
+<script src="js/data.js"></script>
+<script src="js/locations.js"></script>
+<script src="js/analysis.js"></script>
+<script src="js/emergency.js"></script>
+<script src="js/ui-common.js"></script>
+<script src="js/authority.js"></script>
+</body>
+</html>

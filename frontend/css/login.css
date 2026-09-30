@@ -1,0 +1,110 @@
+/* ============ LOGIN PAGE ============ */
+html,body{height:100%;}
+body{overflow-x:hidden;}
+
+.login-shell{
+  min-height:100vh;
+  position:relative;
+  overflow:hidden;
+}
+
+/* -------- FULL-SCREEN brand photo (all text baked into image) -------- */
+.login-bg{
+  position:fixed;
+  top:0; left:0; right:0; bottom:0;
+  z-index:0;
+  background:#06172a;
+  overflow:hidden;
+}
+/* background-size:cover fills the entire screen edge-to-edge with no empty
+   bars/blur strips on any side. object-position is anchored to the top-left
+   (where the logo/headline/feature copy live) so that content is always
+   fully visible — any cropping cover has to do lands on the plainer bottom
+   -right of the photo instead. */
+.login-bg-img{
+  position:absolute;
+  top:0; left:0; right:0; bottom:0;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  object-position:left top;
+}
+.sr-only{
+  position:absolute; width:1px; height:1px; padding:0; margin:-1px;
+  overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0;
+}
+
+/* -------- RIGHT: login card floating ON TOP of the full background photo -------- */
+.login-right{
+  position:relative;
+  z-index:2;
+  min-height:100vh;
+  width:100%;
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  padding:32px 6vw;
+}
+.login-form-wrap{
+  background:rgba(255,255,255,.97);
+  width:100%;
+  max-width:420px;
+  border-radius:var(--radius-lg);
+  box-shadow:0 30px 70px rgba(4,16,32,.45), 0 4px 18px rgba(4,16,32,.2);
+  padding:38px 34px 30px;
+  backdrop-filter:blur(6px);
+}
+.login-form-head h2{margin:0 0 4px;font-size:24px;color:var(--navy-900);font-weight:800;}
+.login-form-head p{margin:0;font-size:13.5px;}
+.head-underline{
+  width:52px;height:4px;border-radius:4px;margin:14px 0 22px;
+  background:linear-gradient(90deg,var(--teal-500),var(--blue-700));
+}
+
+.role-toggle{display:flex;gap:12px;margin-bottom:22px;}
+.role-card{
+  flex:1;border:1.5px solid var(--border-strong);border-radius:14px;background:#fff;
+  padding:14px 10px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:4px;
+  transition:all .15s ease;
+}
+.role-card .role-icon{font-size:22px;margin-bottom:2px;}
+.role-card strong{font-size:13.5px;color:var(--navy-900);}
+.role-card .role-sub{font-size:10.5px;color:var(--text-muted);line-height:1.3;}
+.role-card.active{
+  background:#e7f8f7;border-color:var(--teal-500);
+  box-shadow:0 0 0 3px rgba(14,154,163,.12);
+}
+
+.input-icon-field{position:relative;}
+.input-icon-field label{margin-bottom:6px;}
+.input-icon-field .input{padding-left:38px;}
+.input-icon-field .field-icon{
+  position:absolute;left:12px;top:37px;font-size:14px;color:var(--text-muted);
+}
+.field-eye{
+  position:absolute;right:10px;top:33px;background:none;border:none;font-size:15px;
+  color:var(--text-muted);padding:4px;
+}
+
+.or-divider{
+  display:flex;align-items:center;gap:12px;margin:18px 0;color:var(--text-muted);font-size:12px;
+}
+.or-divider::before,.or-divider::after{content:"";flex:1;height:1px;background:var(--border);}
+
+.register-line{text-align:center;font-size:13px;margin:16px 0 0;color:var(--text-muted);}
+.register-line a{color:var(--blue-600);font-weight:700;}
+
+.secure-footer{
+  text-align:center;font-size:11px;color:var(--text-muted);margin:20px 0 0;letter-spacing:.02em;
+}
+
+@media (max-width:980px){
+  .login-right{justify-content:center;padding:20px;}
+}
+@media (max-width:640px){
+  /* On narrow phones cover crops the sides, but object-position:left top
+     keeps the logo/headline in frame; the card sits lower so it doesn't
+     bury the branding at the top of the photo. */
+  .login-right{align-items:flex-end;padding:16px;}
+  .login-form-wrap{max-width:100%;}
+}
