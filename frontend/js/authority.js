@@ -346,7 +346,7 @@ async function initInfraMap(){
 
     /* Load drainage pipelines ONLY for selected city */
     const response = await fetch(
-      `http://127.0.0.1:8000/api/drainage/pipelines?city=${encodeURIComponent(city)}`
+      `https://urbanos-backend-693m.onrender.com/api/drainage/pipelines?city=${encodeURIComponent(city)}`
     );
 
     if(!response.ok){
