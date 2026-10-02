@@ -26,5 +26,4 @@ Thumbs.db
 *.log
 
 # ML model
-*.pkl
 backend/uploads/
