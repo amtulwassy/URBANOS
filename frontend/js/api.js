@@ -3,7 +3,7 @@
    a Promise. If the backend is unreachable, callers fall back to the
    existing local demo-data generators so the app never goes blank. */
 
-const API_BASE_URL = "http://127.0.0.1:8000/api";
+const API_BASE_URL = "https://urbanos-backend-693m.onrender.com/api";
 const TOKEN_KEY = "urbanos_token_v1";
 
 function getToken(){ return localStorage.getItem(TOKEN_KEY); }
