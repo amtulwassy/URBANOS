@@ -28,14 +28,14 @@ app = FastAPI(
 # CORS — allows the static HTML/CSS/JS frontend (served separately) to call
 # this API from the browser.
 # ---------------------------------------------------------------------------
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=[
-        "http://127.0.0.1:5501",
-        "http://localhost:5501",
-        "http://127.0.0.1:5500",
-        "http://localhost:5500",
-    ],
+app.add_middleware( CORSMiddleware,
+allow_origins=[
+    "http://127.0.0.1:5501",
+    "http://localhost:5501",
+    "http://127.0.0.1:5500",
+    "http://localhost:5500",
+    "https://urbanosnexus.vercel.app",
+],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
