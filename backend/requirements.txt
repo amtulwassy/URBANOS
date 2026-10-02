@@ -14,3 +14,6 @@ python-multipart==0.0.20
 google-auth
 requests
 joblib
+pandas
+scikit-learn
+xgboost
