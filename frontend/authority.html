@@ -238,77 +238,240 @@
     </section>
 
     <!-- ============ REPORTS / COMPLAINT TRACKER VIEW ============ -->
-    <section class="dash-view hidden" id="view-reports-full">
-      <div class="card card-pad">
-        <h3 class="panel-title">Complaint Tracker</h3>
-        <p class="text-sm text-muted">Every citizen report flows: Submitted → Municipal Review → Contractor Assigned → Worker Assigned → Drainage Cleaning → Resolved. Click a complaint to advance its stage or assign a contractor/worker.</p>
-        <table class="data-table" id="complaint-table">
-          <thead><tr><th>Photo</th><th>Complaint</th><th>Zone</th><th>Severity</th><th>Stage</th><th>Contractor / Worker</th></tr></thead>
-          <tbody id="complaint-table-body"></tbody>
-        </table>
+     <section class="dash-view hidden" id="view-reports-full">
+
+  <div class="card card-pad">
+
+    <div class="flex justify-between items-center">
+      <div>
+        <h3 class="panel-title">📋 Complaint Tracker</h3>
+        <p class="text-sm text-muted">
+          Track citizen flood and drainage complaints from report to field resolution.
+        </p>
       </div>
-    </section>
 
-    <!-- ============ INFRASTRUCTURE VIEW ============ -->
-    <!-- ============ INFRASTRUCTURE VIEW ============ -->
-<section class="dash-view hidden" id="view-infra">
+      <span class="badge badge-neutral">
+        BMC → Contractor → Worker
+      </span>
+    </div>
 
-  <div class="card card-pad">
-    <h3 class="panel-title">Drainage Infrastructure</h3>
-    <p class="muted">
-      Government GIS drainage pipelines and their current operational status.
-    </p>
+    <div style="overflow-x:auto; margin-top:16px;">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Photo</th>
+            <th>Complaint ID</th>
+            <th>Zone</th>
+            <th>Severity</th>
+            <th>Stage</th>
+            <th>Assigned Team</th>
+          </tr>
+        </thead>
 
-    <div id="infra-map" class="map-box-xl"></div>
-  </div>
+        <tbody id="complaint-table-body">
+          <tr>
+            <td colspan="6" class="text-muted">
+              Loading complaints...
+            </td>
+          </tr>
+        </tbody>
 
-  <div class="card card-pad">
-    <h3 class="panel-title">Infrastructure At Risk</h3>
+      </table>
+    </div>
 
-    <table class="data-table">
-      <thead>
-        <tr>
-          <th>Pipeline</th>
-          <th>Zone</th>
-          <th>Material</th>
-          <th>Blockage</th>
-          <th>Status</th>
-        </tr>
-      </thead>
-
-      <tbody id="infra-table-body"></tbody>
-    </table>
   </div>
 
 </section>
+   <!-- ============ RESPONSE / EMERGENCY NAVIGATION VIEW ============ -->
+<section class="dash-view hidden" id="view-response">
 
-    <!-- ============ RESPONSE / EMERGENCY DISPATCH VIEW ============ -->
-    <section class="dash-view hidden" id="view-response">
-      <div class="card card-pad">
-        <h3 class="panel-title">🚨 Emergency Dispatch &amp; Best Route</h3>
-        <p class="text-sm text-muted">Dispatch the nearest ambulance, fire unit, or rescue boat to any zone. Route is calculated on real roads and flagged if it passes through high-risk flooding.</p>
-        <div class="scenario-controls">
-          <div class="field" style="margin-bottom:0;">
-            <label>Service</label>
-            <select class="input" id="auth-em-type">
-              <option value="ambulance">🚑 Ambulance</option>
-              <option value="fire">🚒 Fire</option>
-              <option value="rescue">🚤 Rescue Boat</option>
-            </select>
+  <div class="card card-pad">
+
+    <div class="flex justify-between items-center">
+      <div>
+        <h3 class="panel-title">🚨 Emergency Dispatch & Safe Navigation</h3>
+        <p class="text-sm text-muted">
+          Find the safest road route by considering flood-risk zones and blocked roads.
+        </p>
+      </div>
+
+      <span class="badge badge-neutral" id="route-system-status">
+        Navigation Ready
+      </span>
+    </div>
+
+    <div class="scenario-controls" style="margin-top:16px;">
+
+      <div class="field" style="margin-bottom:0;">
+        <label>Emergency Service</label>
+
+        <select class="input" id="auth-em-type">
+          <option value="ambulance">🚑 Ambulance</option>
+          <option value="fire">🚒 Fire Brigade</option>
+          <option value="rescue">🚤 Rescue Team</option>
+          <option value="police">🚓 Police</option>
+        </select>
+      </div>
+
+      <div class="field" style="margin-bottom:0;">
+        <label>Target Micro-zone</label>
+
+        <select class="input" id="auth-em-zone"></select>
+      </div>
+
+      <button class="btn btn-danger" id="auth-em-dispatch">
+        🚨 Find Safe Route
+      </button>
+
+    </div>
+
+    <div id="auth-em-result" class="hidden">
+
+      <div
+        id="auth-em-map"
+        class="map-box-xl"
+        style="margin-top:16px;">
+      </div>
+
+      <div class="legend-row" style="margin-top:12px;">
+
+        <span>
+          <span class="dot" style="background:#16a34a;"></span>
+          Recommended Safe Route
+        </span>
+
+        <span>
+          <span class="dot" style="background:#f59e0b;"></span>
+          Alternative Route
+        </span>
+
+        <span>
+          <span class="dot" style="background:#dc2626;"></span>
+          High Flood-Risk / Avoid
+        </span>
+
+      </div>
+
+      <div
+        class="route-stats"
+        id="auth-route-stats"
+        style="margin-top:14px;">
+      </div>
+
+      <div
+        id="auth-route-warning"
+        class="hidden"
+        style="margin-top:14px;">
+      </div>
+
+      <div class="card" style="margin-top:16px;">
+        <div class="card-pad">
+
+          <div class="flex justify-between items-center">
+
+            <h3 class="panel-title">
+              🧭 Turn-by-Turn Navigation
+            </h3>
+
+            <span
+              class="text-sm text-muted"
+              id="auth-navigation-distance">
+              —
+            </span>
+
           </div>
-          <div class="field" style="margin-bottom:0;">
-            <label>Target zone</label>
-            <select class="input" id="auth-em-zone"></select>
+
+          <div
+            id="auth-turn-by-turn"
+            style="margin-top:10px;">
           </div>
-          <button class="btn btn-danger" id="auth-em-dispatch">Dispatch Now</button>
-        </div>
-        <div id="auth-em-result" class="hidden">
-          <div id="auth-em-map" class="map-box-lg" style="margin-top:14px;"></div>
-          <div class="route-stats" id="auth-route-stats"></div>
-          <div id="auth-route-warning" class="hidden"></div>
+
         </div>
       </div>
-    </section>
+
+      <div class="card" style="margin-top:16px;">
+
+        <div class="card-pad">
+
+          <h3 class="panel-title">
+            🛡️ Why This Route?
+          </h3>
+
+          <div
+            id="auth-route-reason"
+            class="text-sm text-muted"
+            style="margin-top:8px;">
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
+<!-- ============ INFRASTRUCTURE VIEW ============ -->
+<section class="dash-view hidden" id="view-infra">
+
+  <div class="card card-pad">
+
+    <div class="flex justify-between items-center">
+      <div>
+        <h3 class="panel-title">🏗️ Drainage Infrastructure</h3>
+        <p class="text-sm text-muted">
+          Government GIS drainage pipelines and their current operational status.
+        </p>
+      </div>
+
+      <span class="badge badge-neutral">
+        At Risk: <span id="stat-infra-count">0</span>
+      </span>
+    </div>
+
+    <div
+      id="infra-map"
+      class="map-box-xl"
+      style="margin-top:16px;">
+    </div>
+
+  </div>
+
+  <div class="card card-pad" style="margin-top:16px;">
+
+    <h3 class="panel-title">Infrastructure Status</h3>
+
+    <div style="overflow-x:auto; margin-top:14px;">
+
+      <table class="data-table">
+
+        <thead>
+          <tr>
+            <th>Infrastructure</th>
+            <th>Zone</th>
+            <th>Type</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+
+        <tbody id="infra-table-body">
+
+          <tr>
+            <td colspan="4" class="text-muted">
+              Loading infrastructure...
+            </td>
+          </tr>
+
+        </tbody>
+
+      </table>
+
+    </div>
+
+  </div>
+
+</section>
 
     <!-- ============ FORECAST VIEW ============ -->
     <section class="dash-view hidden" id="view-forecast">
@@ -382,6 +545,55 @@
       <button class="btn btn-primary btn-block" id="new-alert-submit">Broadcast Alert</button>
     </div>
   </div>
+</div>
+<!-- Scenario Response Plan Modal -->
+<div class="modal-overlay" id="scenario-plan-modal">
+
+  <div class="modal modal-wide">
+
+    <div class="modal-head">
+
+      <h3 id="scenario-plan-title">
+        Response Plan
+      </h3>
+
+      <button
+        class="modal-close"
+        data-close="scenario-plan-modal">
+        ✕
+      </button>
+
+    </div>
+
+    <div class="modal-body">
+
+      <div
+        id="scenario-plan-risk"
+        style="margin-bottom:14px;">
+      </div>
+
+      <div
+        id="scenario-plan-summary"
+        class="text-sm text-muted"
+        style="margin-bottom:16px;">
+      </div>
+
+      <h4 style="margin-bottom:10px;">
+        Contributing Factors
+      </h4>
+
+      <div id="scenario-plan-factors"></div>
+
+      <h4 style="margin:18px 0 10px;">
+        Recommended Response Plan
+      </h4>
+
+      <div id="scenario-plan-actions"></div>
+
+    </div>
+
+  </div>
+
 </div>
 
 <!-- Zone detail modal -->

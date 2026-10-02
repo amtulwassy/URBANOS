@@ -104,3 +104,34 @@ body{background:var(--bg-app);}
   height: 100%;
   min-height: 500px;
 }
+#view-forecast {
+  width: 100%;
+  min-width: 0;
+  min-height: 400px;
+}
+
+#view-forecast .card {
+  width: 100%;
+}
+
+#forecast-chart {
+  width: 100% !important;
+  height: 320px !important;
+}
+/* Forecast chart fix */
+#view-forecast {
+  width: 100% !important;
+  min-height: 500px !important;
+}
+
+#view-forecast .card {
+  width: 100% !important;
+  min-height: 420px !important;
+}
+
+#forecast-chart {
+  display: block !important;
+  width: 100% !important;
+  height: 320px !important;
+  min-height: 320px !important;
+}

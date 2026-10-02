@@ -12,7 +12,11 @@ router = APIRouter(
 
 
 @router.get("/pipelines")
-def get_drainage_pipelines(db: Session = Depends(get_db)):
+def get_drainage_pipelines(
+    city: str | None = None,
+    state: str | None = None,
+    db: Session = Depends(get_db)
+):
     query = text("""
         SELECT
             id,
@@ -27,15 +31,29 @@ def get_drainage_pipelines(db: Session = Depends(get_db)):
             blocked,
             blockage_level_percent,
             last_checked,
+            city,
+            state,
             ST_AsGeoJSON(geometry) AS geometry
         FROM drainage_pipelines
+        WHERE
+            (:city IS NULL OR city = :city)
+            AND
+            (:state IS NULL OR state = :state)
         ORDER BY id;
     """)
 
-    rows = db.execute(query).mappings().all()
+    rows = db.execute(
+        query,
+        {
+            "city": city,
+            "state": state
+        }
+    ).mappings().all()
 
     return {
         "count": len(rows),
+        "city": city,
+        "state": state,
         "pipelines": [dict(row) for row in rows]
     }
 from pydantic import BaseModel
